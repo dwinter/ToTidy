@@ -12,22 +12,29 @@ library(rgl)
 library(caTools)
 library(magick)
 
-"""
-#sequences of B-tubulin gene (rep sequences) from all species in Epichloe Taxa
-Epichloe_taxa <- read.csv("~/Summer Scholarship 2019/21_species_tree/Epichloe_taxa.csv", stringsAsFactors = FALSE)
-all_recs <- entrez_fetch(db="nuccore", id = Epichloe_taxa$rep_seq, rettype="fasta", stringsAsFactors=FALSE)
-cat(strwrap(substr(all_recs, 1, 500)), sep="\n")
-write(all_recs, file="unaligned.fasta")
-"""
 
-#make tree for ASTRAL comparison
-all_filepath_trees <- list.files("~/Shared Folder/fifteen_trees/", full.names = TRUE) #filepath to best trees
-all_read_trees <- lapply(all_filepath_trees, read.tree) #read all trees
-all_full_tree <- sapply(all_read_trees, Ntip) == 16 #all tips, required for ASTRAL
-all_sixteen_tips <- all_read_trees[all_full_tree]
-class(all_sixteen_tips) <- c("multiPhylo", class(all_sixteen_tips))
-class(all_read_trees) <- c("multiPhylo", class(all_read_trees))
-write.tree(all_sixteen_tips, file = "all_full_trees.phy") #newick format for ASTRAL (use write.nexus for nexus format)
+#sequences of B-tubulin gene (rep sequences) from all species in Epichloe Taxa
+#Epichloe_taxa <- read.csv("~/Summer Scholarship 2019/21_species_tree/Epichloe_taxa.csv", stringsAsFactors = FALSE)
+#all_recs <- entrez_fetch(db="nuccore", id = Epichloe_taxa$rep_seq, rettype="fasta", stringsAsFactors=FALSE)
+#cat(strwrap(substr(all_recs, 1, 500)), sep="\n")
+#write(all_recs, file="unaligned.fasta")
+
+
+#make tree for ASTRAL comparison. Tidied up into a little function that allows 
+#you to specify a path containing trees and the minimum number of tips to
+#include.
+read_trees <- function(tree_dir, min_tax = 16){
+    #assumes directory _only_ includes trees
+    all_path_trees <- list.files(tree_dir, full.names = TRUE) #filepath to best trees
+    all_trees <- lapply(all_path_trees, read.tree)
+    to_return <- all_trees[ sapply(all_trees, Ntip) == min_tax ]
+    class(to_return) <- c("multiPhylo", class(to_return))
+    to_return
+}
+
+all_sixteen_tips <- read_trees("~/Shared Folder/fifteen_trees/")
+all_trees <- read_trees("~/Shared Folder/fifteen_trees/", min_tax=1)
+#write.tree(all_sixteen_tips, file = "all_full_trees.phy") #newick format for ASTRAL (use write.nexus for nexus format)
 write.tree(all_read_trees, file = "all_trees.phy") #all_trees file not used
 
 #reinput ASTRAL tree to root + show node confidences
