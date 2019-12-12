@@ -32,6 +32,7 @@ read_trees <- function(tree_dir, min_tax = 16){
     to_return
 }
 
+
 all_sixteen_tips <- read_trees("~/Shared Folder/fifteen_trees/")
 all_trees <- read_trees("~/Shared Folder/fifteen_trees/", min_tax=1)
 #write.tree(all_sixteen_tips, file = "all_full_trees.phy") #newick format for ASTRAL (use write.nexus for nexus format)
@@ -64,8 +65,30 @@ tree <- read.tree("~/Summer Scholarship 2019/21_species_tree/RAxML_bestTree.tree
 plot.phylo(tree)
 rooted_tree <- root(tree, "JX083460.1")
 old_names <- rooted_tree$tip.label
-name_map <- c(L78276.1="glyceriae", L78290.1="bromicola", AF250743.1="elymi", GQ421707.1="sibirica", EF422757.1="ganuensis", AF457494.1="ganuensis_inebrian", JX083460.1="C_purpurea", L78271.1="brachyelyti", AF323371.1="aotearoae", AF250757.1="typhina_poae", AF176266.1="typhina_poae_canariensis", AY707694.1="typhina_poae_aonikenkana", AF457493.1="typhina_poae_huerfana", KC936108.1="sylvatica_sylvatica", L78281.1="typhina_clarkii", L78288.1="typhina_typhina", JF718439.1="sylvatica_pollinensis", L06961.1="baconii", EU526824.1="stromatolonga", KC936144.1="festucae_lolli", L06955.1="festucae", AF457469.1="mollis", L06958.1="amarillans")
-new_names <- name_map[old_names]
+name_map <- c(L78276.1="glyceriae", 
+              L78290.1="bromicola", 
+              AF250743.1="elymi", 
+              GQ421707.1="sibirica", 
+              EF422757.1="ganuensis", 
+              AF457494.1="ganuensis_inebrian", 
+              JX083460.1="C_purpurea", 
+              L78271.1="brachyelyti", 
+              AF323371.1="aotearoae", 
+              AF250757.1="typhina_poae", 
+              AF176266.1="typhina_poae_canariensis", 
+              AY707694.1="typhina_poae_aonikenkana", 
+              AF457493.1="typhina_poae_huerfana", 
+              KC936108.1="sylvatica_sylvatica", 
+              L78281.1="typhina_clarkii", 
+              L78288.1="typhina_typhina", 
+              JF718439.1="sylvatica_pollinensis", 
+              L06961.1="baconii", 
+              EU526824.1="stromatolonga", 
+              KC936144.1="festucae_lolli", 
+              L06955.1="festucae", 
+              AF457469.1="mollis", 
+              L06958.1="amarillans")
+new_names <- name_map[old_names]  #have to map back as just changing $tipnames doesn't alter them. a work in progress...
 plot.phylo(rooted_tree, show.tip.label = FALSE, x.lim = 0.6)
 tiplabels(new_names, adj = c(-0.1), frame = "none")
 
@@ -109,22 +132,22 @@ splited <- str_split(HostSubStr, boundary("word"))
 HostGenus <- str_extract_all(splited, "\\b[A-Z]\\w+") #Host Genus as extracted with capital letters
 
 ugen <- sapply(HostGenus, unique)
-host_assoc <- data.frame(taxon = rep(allnhy$�..Taxon, times=lengths(ugen)), plant = unlist(ugen)) 
+host_assoc <- data.frame(taxon = rep(allnhy$ï..Taxon, times=lengths(ugen)), plant = unlist(ugen)) 
 
-"""
+
 #produce tree of grass host species
-taxon_names <- rotl::tnrs_match_names(names = unique(host_assoc$plant))
-easy_ones <- taxon_names[taxon_names$number_matches == 1,]
-grass_tree <- rotl::tol_induced_subtree(ott_ids = easy_ones$ott_id)
-plot(grass_tree)
-plot(grass_tree, type = 'u')
-"""
+#taxon_names <- rotl::tnrs_match_names(names = unique(host_assoc$plant))
+#easy_ones <- taxon_names[taxon_names$number_matches == 1,]
+#grass_tree <- rotl::tol_induced_subtree(ott_ids = easy_ones$ott_id)
+#plot(grass_tree)
+#plot(grass_tree, type = 'u')
+
 
 host_assoc$observed <- "present"
 host_assoc <- host_assoc[-c(46,47), ] #remving additional species shouldn't be included in analysis
 
 wide_host <- pivot_wider(host_assoc, names_from=plant, values_from=observed, values_fill= list(observed="absent"))
-wide_host[5,1] <- "Epichloë bromicola                      Leuchtm. & Schardl"  #adding information not included
+wide_host[5,1] <- "EpichloÃ« bromicola                      Leuchtm. & Schardl"  #adding information not included
 
 Tag <- Epichloe_taxon_data_updated[,c(1,2)] #dataframe with just tagname and scientific name
 Host_Tags <- merge(Tag, HostDistribution1, by = "taxon") #HostDistribtion one is altered wide_host (removed spaces between taxon names to enable merging)
